@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fender Marketing Automation Strategy SPA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Report Sections (Intro, Understanding Fender, Pillars, Tech, Integration, Conclusion): Goal: Inform. Method: Structured text blocks with Tailwind styling, icons. Interaction: Navigation via top bar. Justification: Clear presentation of qualitative information.
+        - 30/60/90 Day Roadmap: Goal: Organize & Show Phasing. Method: Interactive Tabs (HTML/CSS/JS) for each phase, displaying Key Initiatives & Deliverables. Interaction: Click tabs to switch views. Justification: Clear, sequential presentation of the plan.
+        - KPIs: Goal: Inform & Compare. Method: 1. Bar chart (Chart.js) for target KPI improvements (e.g., Churn Rate Reduction, LTV Increase). 2. Interactive HTML table for all KPIs with definitions and targets. Interaction: Chart interactivity. Justification: Visual and tabular display for quantitative goals.
+        - Core Campaigns: Goal: Organize & Detail. Method: Card-based layout (HTML/Tailwind) for campaigns, categorized by type (Onboarding, Engagement, etc.). Interaction: Filters (JS) for 'Beginner vs. Pro' and 'Fender Play vs. Physical Product'. Clicking a card opens a modal with details. Justification: Allows users to explore specific campaign strategies relevant to their interests.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All visuals are HTML/CSS/Tailwind or Chart.js Canvas. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-orange-500 hover:text-white transition-colors;
+        }
+        .nav-link.active {
+            @apply bg-orange-600 text-white;
+        }
+        .section-title {
+            @apply text-3xl font-bold text-gray-800 mb-6 mt-4;
+        }
+        .card {
+            @apply bg-white shadow-lg rounded-lg p-6 transition-all duration-300 hover:shadow-xl;
+        }
+        .tab-button {
+            @apply px-4 py-2 font-medium text-sm rounded-t-lg focus:outline-none transition-colors;
+        }
+        .tab-button.active {
+            @apply bg-blue-600 text-white;
+        }
+        .tab-button:not(.active) {
+            @apply text-blue-600 hover:bg-blue-100;
+        }
+        .modal {
+            @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50;
+        }
+        .modal-content {
+            @apply bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl mx-auto;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px; /* Adjusted for potentially wider bar chart */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 450px; /* Max height */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .kpi-table th, .kpi-table td {
+            @apply px-4 py-2 border border-gray-300 text-sm;
+        }
+        .kpi-table th {
+            @apply bg-gray-100 font-semibold;
+        }
+         .filter-button {
+            @apply px-4 py-2 text-sm font-medium rounded-md border border-gray-300 focus:outline-none transition-all;
+        }
+        .filter-button.active {
+            @apply bg-blue-600 text-white border-blue-600;
+        }
+        .filter-button:not(.active) {
+            @apply text-gray-700 hover:bg-gray-100;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-orange-600">Fender Automation Plan</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link active">Intro</a>
+                        <a href="#understanding" class="nav-link">Understanding Fender</a>
+                        <a href="#pillars" class="nav-link">Strategic Pillars</a>
+                        <a href="#roadmap" class="nav-link">Roadmap</a>
+                        <a href="#kpis" class="nav-link">KPIs</a>
+                        <a href="#campaigns" class="nav-link">Campaigns</a>
+                        <a href="#tech" class="nav-link">Tech Stack</a>
+                        <a href="#integration" class="nav-link">Brand Integration</a>
+                        <a href="#conclusion" class="nav-link">Conclusion</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-orange-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#intro" class="nav-link block">Intro</a>
+                <a href="#understanding" class="nav-link block">Understanding Fender</a>
+                <a href="#pillars" class="nav-link block">Strategic Pillars</a>
+                <a href="#roadmap" class="nav-link block">Roadmap</a>
+                <a href="#kpis" class="nav-link block">KPIs</a>
+                <a href="#campaigns" class="nav-link block">Campaigns</a>
+                <a href="#tech" class="nav-link block">Tech Stack</a>
+                <a href="#integration" class="nav-link block">Brand Integration</a>
+                <a href="#conclusion" class="nav-link block">Conclusion</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        
+        <section id="intro" class="content-section p-6">
+            <h1 class="section-title">Executive Summary</h1>
+            <div class="card">
+                <p class="text-lg leading-relaxed">This plan outlines a comprehensive marketing automation strategy for Fender, designed to significantly increase Customer Lifetime Value (LTV), enhance engagement, and boost retention across its diverse customer base. By leveraging Fender's existing data infrastructure (Twilio Segment, Twilio Engage) and integrating deeply with its dual business model (physical instruments and Fender Play), this strategy will orchestrate personalized, omnichannel customer journeys. The phased 30/60/90-day roadmap focuses on foundational improvements, advanced personalization, and continuous optimization, all while reinforcing Fender's "Spirit of Rock-and-Roll" brand ethos.</p>
+            </div>
+        </section>
+
+        <section id="understanding" class="content-section p-6 hidden">
+            <h1 class="section-title">Understanding Fender's Ecosystem & Brand</h1>
+            <p class="mb-6 text-gray-600">Fender operates with a unique dual business model and caters to a diverse customer base, all while upholding its iconic "Spirit of Rock-and-Roll." Understanding these facets is key to effective marketing automation.</p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-3 text-blue-600">🎸 Dual Business Model</h3>
+                    <p class="mb-2"><strong>Physical Instruments:</strong> Renowned for iconic guitars like the Stratocaster and Telecaster, basses, and amps.</p>
+                    <p><strong>Fender Play:</strong> A subscription-based online learning app for guitar, bass, and ukulele, strategically designed to increase LTV by fostering instrument learning and subsequent gear purchases.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-3 text-blue-600">👥 Key Customer Segments</h3>
+                    <p class="mb-2"><strong>Beginner & Aspirational:</strong> A growing segment (72% of new players aged 13-34, 50% women). High churn (90% abandon in 1st year) is a critical LTV bottleneck. Fender Play aims to reduce this.</p>
+                    <p><strong>Professional Musicians:</strong> Served by Fender Custom Shop, requiring bespoke solutions and high-end instruments.</p>
+                </div>
+            </div>
+            <div class="card mt-6">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">🤘 Aligning with Brand Ethos</h3>
+                <p>Fender's vision is to "champion THE SPIRIT OF ROCK-AND-ROLL®" through individual expression, creativity, passion, and energy. Core values include Communication, Respect, Integrity, Excellence, Innovation, and Passion. Automation must embody these values, inspiring and educating, not just promoting.</p>
+            </div>
+        </section>
+
+        <section id="pillars" class="content-section p-6 hidden">
+            <h1 class="section-title">Strategic Pillars for Automation Excellence</h1>
+            <p class="mb-6 text-gray-600">These four pillars form the foundation of Fender's marketing automation strategy, ensuring data-driven, personalized, and continuously improving customer engagement.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card text-center">
+                    <div class="text-4xl mb-3">📊</div>
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Data Unification & Customer 360</h3>
+                    <p class="text-sm">Leveraging Twilio Segment for a single source of truth, identity resolution, and robust data governance with Segment Protocols and Avo.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-4xl mb-3">🎯</div>
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Advanced Segmentation & Hyper-Personalization</h3>
+                    <p class="text-sm">Moving beyond reactive to predictive personalization, anticipating needs using unified data from Segment and activating with Twilio Engage.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-4xl mb-3">🔄</div>
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Omnichannel Journey Orchestration</h3>
+                    <p class="text-sm">Synchronizing email, SMS, push, and in-app messages for a cohesive experience, leveraging Fender Play's in-app features and social engagement.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-4xl mb-3">📈</div>
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Continuous Optimization & Experimentation</h3>
+                    <p class="text-sm">Fostering a culture of A/B testing and using Amplitude for behavioral analytics to refine journeys and maximize LTV and engagement.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="content-section p-6 hidden">
+            <h1 class="section-title">Phased Marketing Automation Roadmap</h1>
+            <p class="mb-6 text-gray-600">A strategic 30/60/90-day plan to implement and optimize marketing automation, focusing on foundational improvements, expansion, and advanced innovation.</p>
+            <div class="mb-4 border-b border-gray-200">
+                <nav class="flex -mb-px" aria-label="Tabs">
+                    <button class="tab-button active" data-tab="phase1">Days 1-30: Foundation & Quick Wins</button>
+                    <button class="tab-button" data-tab="phase2">Days 31-60: Expansion & Optimization</button>
+                    <button class="tab-button" data-tab="phase3">Days 61-90: Advanced Journeys & Innovation</button>
+                </nav>
+            </div>
+            <div id="phase1" class="tab-content card">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">Phase 1: Foundation & Quick Wins (Days 1-30)</h3>
+                <p class="font-semibold mb-1">Key Initiatives:</p>
+                <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                    <li>Comprehensive Data Audit & CDP Optimization (Twilio Segment, Protocols).</li>
+                    <li>Current Automation Review & Mapping.</li>
+                    <li>Refine Fender Play Onboarding Series for quick "aha moments".</li>
+                    <li>Quick Win: Enhanced Abandoned Cart/Browse Automation (eCommerce).</li>
+                </ul>
+                <p class="font-semibold mb-1">Deliverables:</p>
+                <p class="text-sm">Data audit report, updated Fender Play welcome series, optimized abandoned cart/browse flows live.</p>
+            </div>
+            <div id="phase2" class="tab-content card hidden">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">Phase 2: Expansion & Optimization (Days 31-60)</h3>
+                 <p class="font-semibold mb-1">Key Initiatives:</p>
+                <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                    <li>Behavioral Lifecycle Journeys (Fender Play milestones).</li>
+                    <li>Strategic Cross-sell/Upsell Campaigns (Fender Play ⇔ eCommerce, leveraging 10% discount).</li>
+                    <li>Proactive Win-back Campaign for Lapsed Fender Play Users (multi-channel).</li>
+                    <li>Establish A/B Testing Framework (subject lines, CTAs, content).</li>
+                </ul>
+                <p class="font-semibold mb-1">Deliverables:</p>
+                <p class="text-sm">Live Fender Play engagement journeys, integrated cross-sell campaigns, multi-channel win-back flows, documented A/B testing roadmap.</p>
+            </div>
+            <div id="phase3" class="tab-content card hidden">
+                <h3 class="text-xl font-semibold mb-3 text-blue-600">Phase 3: Advanced Journeys & Innovation (Days 61-90)</h3>
+                <p class="font-semibold mb-1">Key Initiatives:</p>
+                <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                    <li>Predictive Churn Prevention & Intervention (with data science).</li>
+                    <li>Loyalty & VIP Programs Automation (tiered rewards).</li>
+                    <li>Community-Driven Automation & UGC Amplification (TikTok, Instagram integration).</li>
+                    <li>Internationalization Strategy Assessment for Fender Play.</li>
+                    <li>Voice of Customer (VoC) Integration & Feedback Loops (CSAT/NPS).</li>
+                </ul>
+                <p class="font-semibold mb-1">Deliverables:</p>
+                <p class="text-sm">Predictive churn triggers, automated loyalty segments, UGC campaign templates, internationalization strategy brief, integrated VoC dashboards.</p>
+            </div>
+        </section>
+
+        <section id="kpis" class="content-section p-6 hidden">
+            <h1 class="section-title">Key Performance Indicators (KPIs)</h1>
+            <p class="mb-6 text-gray-600">Tracking these KPIs is essential to measure the success of marketing automation initiatives and their impact on Fender's business objectives. Below are some key targets.</p>
+            <div class="card mb-8">
+                <h3 class="text-xl font-semibold mb-4 text-center text-blue-600">Key KPI Improvement Targets</h3>
+                <div class="chart-container">
+                    <canvas id="kpiChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4 text-blue-600">Detailed KPI Overview</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full kpi-table">
+                        <thead>
+                            <tr>
+                                <th>KPI</th>
+                                <th>Objective</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Customer Lifetime Value (LTV)</td><td>Increase overall customer value</td><td>+10-15% YOY</td></tr>
+                            <tr><td>Customer Retention Rate (CRR)</td><td>Improve loyalty (Physical & Fender Play)</td><td>+5% Physical, +10% Fender Play</td></tr>
+                            <tr><td>Churn Rate (Fender Play)</td><td>Reduce subscription churn (esp. beginners)</td><td>-15% Overall, -20% Beginner</td></tr>
+                            <tr><td>Repeat Purchase Rate (RPR)</td><td>Increase re-engagement & cross-category sales</td><td>+8%</td></tr>
+                            <tr><td>MRR / Expansion MRR (Fender Play)</td><td>Grow subscription revenue & upsells</td><td>+10% MRR, +5% Expansion MRR</td></tr>
+                            <tr><td>Email OR & CTR</td><td>Increase email campaign engagement</td><td>OR: >25%, CTR: >5%</td></tr>
+                            <tr><td>Fender Play Active Users (DAU/WAU)</td><td>Enhance app stickiness</td><td>DAU/WAU Ratio: >0.3</td></tr>
+                            <tr><td>Fender Play Lesson Completion</td><td>Drive progression & perceived value</td><td>+10%</td></tr>
+                            <tr><td>Website Conversion Rate (eCommerce)</td><td>Optimize purchase paths</td><td>+2%</td></tr>
+                            <tr><td>NPS / CSAT</td><td>Improve customer sentiment</td><td>NPS: >50, CSAT: >85%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="campaigns" class="content-section p-6 hidden">
+            <h1 class="section-title">Core Lifecycle & Behaviorally Triggered Campaigns</h1>
+            <p class="mb-6 text-gray-600">Orchestrating personalized journeys that respond to customer behavior. Filter campaigns by segment or product focus.</p>
+            
+            <div class="mb-6 flex flex-wrap gap-4 items-center">
+                <div class="font-semibold">Filter by:</div>
+                <div>
+                    <span class="mr-2 text-sm">Segment:</span>
+                    <button class="filter-button" data-filter-group="segment" data-filter="all">All</button>
+                    <button class="filter-button" data-filter-group="segment" data-filter="beginner">Beginner</button>
+                    <button class="filter-button" data-filter-group="segment" data-filter="pro">Pro</button>
+                </div>
+                <div>
+                    <span class="mr-2 text-sm">Product Focus:</span>
+                    <button class="filter-button" data-filter-group="product" data-filter="all">All</button>
+                    <button class="filter-button" data-filter-group="product" data-filter="play">Fender Play</button>
+                    <button class="filter-button" data-filter-group="product" data-filter="physical">Physical Product</button>
+                </div>
+            </div>
+
+            <div id="campaigns-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+        
+        <div id="campaignModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-blue-600">Campaign Details</h2>
+                    <button id="closeModal" class="text-gray-700 hover:text-red-500 text-2xl">&times;</button>
+                </div>
+                <div id="modalBody" class="text-sm space-y-3">
+                </div>
+            </div>
+        </div>
+
+
+        <section id="tech" class="content-section p-6 hidden">
+            <h1 class="section-title">Recommended Tech Stack</h1>
+            <p class="mb-6 text-gray-600">Leveraging and enhancing Fender's existing robust technology foundation for marketing automation.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Twilio Segment (CDP)</h3>
+                    <p class="text-sm">Continue to maximize for unified customer data, identity resolution, and data governance (Segment Protocols).</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Twilio Engage (MAP/CEP)</h3>
+                    <p class="text-sm">Fully exploit for complex journey orchestration, personalized multichannel messaging (email, SMS, push), and real-time Segment audience activation.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">ESP (e.g., SendGrid, Mailchimp Premium)</h3>
+                    <p class="text-sm">If separate ESP needed for high-volume/transactional emails, ensure alignment with existing integrations.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Mobile Engagement (e.g., Braze, Iterable)</h3>
+                    <p class="text-sm">Consider if advanced mobile-first capabilities beyond Twilio Engage are required (Fender already integrates Iterable with Segment).</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Amplitude (Analytics & A/B Testing)</h3>
+                    <p class="text-sm">Continue use for behavioral analytics and leverage A/B testing with Engage for continuous optimization.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600">Avo (Data Governance)</h3>
+                    <p class="text-sm">Continue use to manage tracking plans and ensure data quality flowing into Segment Protocols.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="integration" class="content-section p-6 hidden">
+            <h1 class="section-title">Integration with Fender's Brand & Values</h1>
+            <p class="mb-6 text-gray-600">Ensuring every automated interaction reinforces the "Spirit of Rock-and-Roll" and strengthens customer loyalty by aligning with Fender's core values.</p>
+            <div class="space-y-4">
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-1">🤘 Embodying the "Spirit of Rock-and-Roll"</h3>
+                    <p class="text-sm">Campaigns will inspire individual expression, creativity, and passion, not just promote products.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-1">✨ Celebrating Innovation and Quality</h3>
+                    <p class="text-sm">Highlight Fender's heritage, craftsmanship, and the expertly crafted Fender Play curriculum.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-1">🤝 Fostering Community and Connection</h3>
+                    <p class="text-sm">Amplify social engagement (TikTok, Instagram), encourage UGC, and connect learners.</p>
+                </div>
+                 <div class="card">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-1">👤 Personalization as Respect</h3>
+                    <p class="text-sm">Tailored interactions show understanding and value for each musician's unique journey, leveraging Segment data.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-1">📚 Educational Empowerment</h3>
+                    <p class="text-sm">Reinforce Fender Play's mission by providing consistent, valuable educational content to support lifelong learning.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="content-section p-6 hidden">
+            <h1 class="section-title">Conclusions & Recommendations</h1>
+            <div class="card space-y-4">
+                <p class="text-lg">This strategic marketing automation plan for Fender is designed to significantly enhance customer lifetime value and engagement by leveraging Fender's unique dual business model and rich brand heritage. Fender is well-positioned with its existing Twilio Segment and Twilio Engage infrastructure.</p>
+                <p class="font-semibold text-blue-600">Key Recommendations:</p>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>Prioritize Beginner Retention in Fender Play.</li>
+                    <li>Seamlessly Bridge Digital and Physical Journeys.</li>
+                    <li>Embrace Predictive Personalization.</li>
+                    <li>Orchestrate True Omnichannel Experiences.</li>
+                    <li>Foster a Culture of Continuous Experimentation.</li>
+                    <li>Integrate Brand Ethos into All Automation.</li>
+                    <li>Leverage and Maximize Existing Tech Stack.</li>
+                </ul>
+                <p>By meticulously executing this plan, Fender can solidify its position as a brand that truly champions the musical journey of every player.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-12">
+        <p>&copy; 2025 Marketing Automation Strategy for Fender. For demonstration purposes.</p>
+    </footer>
+
+<script>
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.content-section');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function updateActiveLink(targetId) {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${targetId}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    function showSection(targetId) {
+        sections.forEach(section => {
+            if (section.id === targetId) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+        updateActiveLink(targetId);
+        window.scrollTo(0, 0); // Scroll to top of page
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            showSection(targetId);
+            if (mobileMenu.classList.contains('block')) {
+                mobileMenu.classList.remove('block');
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+                mobileMenuButton.querySelectorAll('svg')[0].classList.remove('hidden');
+                mobileMenuButton.querySelectorAll('svg')[1].classList.add('hidden');
+            }
+        });
+    });
+    
+    mobileMenuButton.addEventListener('click', () => {
+        const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+        mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('hidden');
+        mobileMenu.classList.toggle('block');
+        mobileMenuButton.querySelectorAll('svg').forEach(svg => svg.classList.toggle('hidden'));
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tab;
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            tabContents.forEach(content => {
+                if (content.id === targetTab) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+    
+    const kpiData = {
+        labels: ['LTV Increase', 'CRR Increase (Play)', 'Churn Reduction (Play)', 'RPR Increase', 'MRR Increase (Play)'],
+        datasets: [{
+            label: 'Target Improvement (%)',
+            data: [12.5, 10, 15, 8, 10], // Used mid-point for LTV, took negative as positive for churn reduction display
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.6)', // Blue
+                'rgba(255, 159, 64, 0.6)', // Orange
+                'rgba(75, 192, 192, 0.6)', // Green
+                'rgba(255, 99, 132, 0.6)', // Red
+                'rgba(153, 102, 255, 0.6)' // Purple
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const kpiConfig = {
+        type: 'bar',
+        data: kpiData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Percentage (%)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        callback: function(value, index, values) {
+                            const label = this.getLabelForValue(value);
+                            if (label.length > 16) { // Max 16 chars per line
+                                const words = label.split(' ');
+                                let lines = [''];
+                                let currentLine = 0;
+                                words.forEach(word => {
+                                    if ((lines[currentLine] + word).length > 16) {
+                                        currentLine++;
+                                        lines[currentLine] = '';
+                                    }
+                                    lines[currentLine] += word + ' ';
+                                });
+                                return lines.map(l => l.trim());
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false 
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    let kpiChartInstance; 
+
+    const campaignsData = [
+        { 
+            id: 'fp-welcome', name: 'Fender Play Welcome & Activation', type: 'Onboarding', segment: 'beginner', product: 'play', 
+            details: {
+                trigger: "New Fender Play sign-up (trial/paid).",
+                channels: "Email, In-App Push, SMS (critical reminders).",
+                objective: "Drive initial lesson completion, feature adoption (Feedback/Practice Mode), convert trial to paid. Achieve 'aha moment'.",
+                content: [
+                    "Personalized welcome (instrument/genre based).",
+                    "'Your First Lesson' video guides.",
+                    "Milestone celebrations ('First song completed!').",
+                    "Feature spotlights (Feedback/Practice Mode).",
+                    "Trial expiry reminders with value proposition."
+                ]
+            }
+        },
+        { 
+            id: 'pp-welcome', name: 'Physical Product First-Purchase Welcome', type: 'Onboarding', segment: 'all', product: 'physical',
+            details: {
+                trigger: "First-time purchase of Fender instrument/accessory.",
+                channels: "Email, SMS (delivery), Direct Mail (premium touch).",
+                objective: "Confirm purchase, provide product info, encourage initial engagement, introduce Fender ecosystem (inc. Fender Play).",
+                content: [
+                    "Order confirmation & shipping updates.",
+                    "'Getting Started' guide (setup, tuning, maintenance).",
+                    "Introduction to Fender Play (trial/discount).",
+                    "Brand story & community invitation (#FenderJamSesh)."
+                ]
+            }
+        },
+        { 
+            id: 'fp-reengage', name: 'Fender Play Behavioral Re-engagement', type: 'Engagement', segment: 'all', product: 'play',
+            details: {
+                trigger: "Inactivity in Fender Play app (e.g., no logins 7, 14, 30 days).",
+                channels: "In-App Push, Email, SMS (high-risk churn).",
+                objective: "Reactivate dormant users, remind of learning value, prevent churn.",
+                content: [
+                    "Personalized nudges (last lesson, practice suggestion, new relevant content).",
+                    "'Why We Play' inspirational content.",
+                    "Short-term incentive for highly inactive (free week, discount)."
+                ]
+            }
+        },
+        { 
+            id: 'pp-nurture', name: 'Post-Purchase Nurturing (Physical)', type: 'Engagement', segment: 'all', product: 'physical',
+            details: {
+                trigger: "X days/weeks after physical product purchase.",
+                channels: "Email.",
+                objective: "Ensure satisfaction, encourage registration, drive repeat/accessory sales.",
+                content: [
+                    "Product care & maintenance tips.",
+                    "Personalized accessory recommendations.",
+                    "Request for review/feedback (VoC data)."
+                ]
+            }
+        },
+        { 
+            id: 'milestone-rec', name: 'Milestone & Achievement Recognition', type: 'Engagement', segment: 'all', product: 'all',
+            details: {
+                trigger: "Significant milestone (Fender Play path complete, practice hours, second purchase, customer anniversary).",
+                channels: "Email, In-App, Push.",
+                objective: "Celebrate progress, reinforce positive behavior, deepen loyalty.",
+                content: [
+                    "Personalized messages, digital badges, community shout-out, exclusive content.",
+                    "For long-term: early product access, exclusive discounts."
+                ]
+            }
+        },
+        { 
+            id: 'fp-winback', name: 'Lapsed Subscriber Win-back (Fender Play)', type: 'Win-back', segment: 'all', product: 'play',
+            details: {
+                trigger: "Subscription cancellation or extended inactivity post-trial.",
+                channels: "Email, SMS, Retargeting Ads.",
+                objective: "Re-engage former subscribers, encourage re-subscription.",
+                content: [
+                    "'We Miss You' series (value reminder, new content/features).",
+                    "Personalized re-engagement offer (discount, extended trial).",
+                    "Feedback survey (why they left)."
+                ]
+            }
+        },
+        { 
+            id: 'pp-winback-dormant', name: 'Dormant Physical Product Buyer Win-back', type: 'Win-back', segment: 'all', product: 'physical',
+            details: {
+                trigger: "No purchase activity for X months (e.g., 6-12 months).",
+                channels: "Email.",
+                objective: "Re-engage dormant customers, drive new purchase.",
+                content: [
+                    "'What's New at Fender?' update (new products, artist collabs).",
+                    "Personalized recommendations based on past purchases.",
+                    "Exclusive discount on relevant category."
+                ]
+            }
+        },
+        { 
+            id: 'vip-loyalty', name: 'VIP/Loyalty Program Engagement', type: 'Loyalty', segment: 'pro', product: 'all',
+            details: {
+                trigger: "Customer reaches defined loyalty tier (high LTV, multiple purchases, long-term Fender Play subscriber).",
+                channels: "Email, Personalized Direct Mail, Concierge Service.",
+                objective: "Recognize & reward top-tier customers, foster exclusivity & advocacy.",
+                content: [
+                    "Exclusive Custom Shop content, early product announcements, event invites (Fender Play Live, artist clinics), personalized thank-yous."
+                ]
+            }
+        }
+    ];
+
+    const campaignsGrid = document.getElementById('campaigns-grid');
+    const campaignModal = document.getElementById('campaignModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const closeModalButton = document.getElementById('closeModal');
+
+    let currentSegmentFilter = 'all';
+    let currentProductFilter = 'all';
+
+    function renderCampaigns() {
+        campaignsGrid.innerHTML = '';
+        const filteredCampaigns = campaignsData.filter(campaign => {
+            const segmentMatch = currentSegmentFilter === 'all' || campaign.segment === currentSegmentFilter || campaign.segment === 'all';
+            const productMatch = currentProductFilter === 'all' || campaign.product === currentProductFilter || campaign.product === 'all';
+            return segmentMatch && productMatch;
+        });
+
+        if (filteredCampaigns.length === 0) {
+            campaignsGrid.innerHTML = `<p class="col-span-full text-center text-gray-500">No campaigns match the current filters.</p>`;
+            return;
+        }
+
+        filteredCampaigns.forEach(campaign => {
+            const card = document.createElement('div');
+            card.className = 'card campaign-card cursor-pointer';
+            card.innerHTML = `
+                <h3 class="text-lg font-semibold text-orange-600 mb-2">${campaign.name}</h3>
+                <p class="text-xs text-gray-500 mb-1">Type: <span class="font-medium text-gray-700">${campaign.type}</span></p>
+                <p class="text-xs text-gray-500 mb-1">Segment: <span class="font-medium text-gray-700">${campaign.segment === 'all' ? 'All Players' : campaign.segment.charAt(0).toUpperCase() + campaign.segment.slice(1)}</span></p>
+                <p class="text-xs text-gray-500">Product: <span class="font-medium text-gray-700">${campaign.product === 'all' ? 'All Products' : (campaign.product === 'play' ? 'Fender Play' : 'Physical Product')}</span></p>
+            `;
+            card.addEventListener('click', () => showCampaignModal(campaign));
+            campaignsGrid.appendChild(card);
+        });
+    }
+
+    function showCampaignModal(campaign) {
+        modalTitle.textContent = campaign.name;
+        let contentHTML = `
+            <p><strong>Trigger:</strong> ${campaign.details.trigger}</p>
+            <p><strong>Channels:</strong> ${campaign.details.channels}</p>
+            <p><strong>Objective:</strong> ${campaign.details.objective}</p>
+            <p class="mt-2"><strong>Content Strategy:</strong></p>
+            <ul class="list-disc list-inside ml-4">
+        `;
+        campaign.details.content.forEach(item => {
+            contentHTML += `<li>${item}</li>`;
+        });
+        contentHTML += `</ul>`;
+        modalBody.innerHTML = contentHTML;
+        campaignModal.classList.remove('hidden');
+    }
+
+    closeModalButton.addEventListener('click', () => {
+        campaignModal.classList.add('hidden');
+    });
+    
+    campaignModal.addEventListener('click', (event) => {
+        if (event.target === campaignModal) {
+            campaignModal.classList.add('hidden');
+        }
+    });
+
+
+    document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const filterGroup = button.dataset.filterGroup;
+            const filterValue = button.dataset.filter;
+
+            document.querySelectorAll(`.filter-button[data-filter-group="${filterGroup}"]`).forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            if (filterGroup === 'segment') {
+                currentSegmentFilter = filterValue;
+            } else if (filterGroup === 'product') {
+                currentProductFilter = filterValue;
+            }
+            renderCampaigns();
+        });
+    });
+    
+    // Set initial active filter buttons
+    document.querySelector('.filter-button[data-filter-group="segment"][data-filter="all"]').classList.add('active');
+    document.querySelector('.filter-button[data-filter-group="product"][data-filter="all"]').classList.add('active');
+
+
+    // Initial setup
+    showSection('intro'); // Show intro section by default
+    renderCampaigns(); // Initial render of campaigns
+
+    // Intersection Observer for activating nav links on scroll (optional enhancement)
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5 // Adjust as needed, 0.5 means 50% of section is visible
+    };
+
+    const observerCallback = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const targetId = entry.target.id;
+                updateActiveLink(targetId);
+                if (targetId === 'kpis' && !kpiChartInstance) { // Lazy load chart
+                     kpiChartInstance = new Chart(document.getElementById('kpiChart'), kpiConfig);
+                }
+            }
+        });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    sections.forEach(section => observer.observe(section));
+
+</script>
+</body>
+</html>
